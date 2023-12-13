@@ -75,10 +75,10 @@ public:
     }
 };
 
-vec3 operator+(float val, vec3& v) {return vec3(v.x + val, v.y + val, v.z + val);}
-vec3 operator-(float val, vec3& v) {return vec3(v.x - val, v.y - val, v.z - val);}
-vec3 operator*(float val, vec3& v) {return vec3(v.x * val, v.y * val, v.z * val);}
-vec3 operator/(float val, vec3& v) {return vec3(v.x / val, v.y / val, v.z / val);}
+vec3 operator+(float val, vec3 v) {return vec3(v.x + val, v.y + val, v.z + val);}
+vec3 operator-(float val, vec3 v) {return vec3(v.x - val, v.y - val, v.z - val);}
+vec3 operator*(float val, vec3 v) {return vec3(v.x * val, v.y * val, v.z * val);}
+vec3 operator/(float val, vec3 v) {return vec3(v.x / val, v.y / val, v.z / val);}
 
 class vec4{
 public:
