@@ -150,11 +150,6 @@ void clear() {
     wait(nullptr);
 }
 
-template <typename T>
-T mix(const T &a,const T &b, float h) {
-    return a*(1-h) + b*h;
-}
-
 vec4 mixBaseColors(vec3& p) {
     float distA = donut.sdf(p), distB = sphere.sdf(p), k = 0.5;
     float h = clamp(0.5 + 0.5*(distA-distB)/k, 0., 1.);

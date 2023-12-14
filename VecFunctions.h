@@ -7,6 +7,14 @@ double sign(double a) { return (0 < a) - (a < 0); }
 
 vec3 norm(const vec3& v) {return vec3(v / v.length());}
 
+vec3 max(const vec3& v, const vec3& u) {return vec3(fmax(v.x, u.x), fmax(v.y, u.y), fmax(v.z, u.z));}
+vec3 min(const vec3& v, const vec3& u) {return vec3(fmin(v.x, u.x), fmin(v.y, u.y), fmin(v.z, u.z));}
+
+template <typename T>
+T mix(const T &a,const T &b, float h) {
+    return a*(1-h) + b*h;
+}
+
 vec3 rotateX(const vec3& a, double angle) {
     float cosA = std::cos(angle);
     float sinA = std::sin(angle);
