@@ -70,8 +70,8 @@ class CubeObj : public ObjectClass, public RenderableObject {
 private:
     float _l, _b, _h;
 public:
-    CubeObj() {
-        _l = _b = _h = 1;
+    CubeObj(float val = 1) {
+        _l = _b = _h = val;
     }
     float l() {return _l;} 
     float b() {return _b;}
@@ -80,7 +80,7 @@ public:
     void setB(float b) {_b = b;}
     void setH(float h) {_h = h;}
     float sdf(const vec3& p) const {
-        vec3 q = vec3(fabs((p-pos()).dot(u())), fabs((p-pos()).dot(v())), fabs((p-pos()).dot(u().cross(v())))) - vec3(_l, _b, _h); 
+        vec3 q = vec3(fabs((p-pos()).dot(u())), fabs((p-pos()).dot(v())), fabs((p-pos()).dot(u().cross(v())))) - vec3(_l/2, _b/2, _h/2); 
         return max(q, vec3(0)).length() + fmin(fmax(fmax(q.x, q.y), q.z), 0);
     }
 };
@@ -191,7 +191,7 @@ private:
     RenderableObject* objectSDF;
     CubeObj* cube;
     stepFuncPtr privateStep = [](double, double, ObjectCollection&){}; 
-    std::chrono::high_resolution_clock::time_point startTime, endTime; 
+    std::chrono::high_resolution_clock::time_point prevTime, endTime; 
 
     void fold(vec3 &p) {
         p = -floor(((p - cube -> pos()).dot(cube -> u()) + cube -> l()/2)/cube -> l())*cube -> l() *cube -> u() + p;
@@ -251,6 +251,7 @@ public:
         MAX_DISTANCE = 100;
         MAX_STEPS = 100;
         SURF_DIST = 0.01f;
+        prevTime = std::chrono::high_resolution_clock::now();
     }
     void setMaxFrameRate(unsigned short int rate) {
         _maxFrameRate = rate; 
@@ -288,6 +289,7 @@ public:
     }
 
     void startFrameTimer() {
+        prevTime = std::chrono::high_resolution_clock::now();
         if(maintainMaxFrameRate && !internalClockOn) {
             internalClockOn = true;
             internalClock = std::thread(&Scene::internalTimer, this);
@@ -300,7 +302,6 @@ public:
     }
 
     void render() {
-        startTime = std::chrono::high_resolution_clock::now();
         printf("\x1b[H");
         if(maintainMaxFrameRate) waitNextFrame();
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &size); //58x240 screen size looks really good, with a steady 70 fps, without maxFrameRate has20 fps even on 110x480
@@ -308,6 +309,7 @@ public:
         collection.camera.setScreenWidth(size.ws_col - 4);
         printf("Frame rate: %4d%*s\n", (int)(1/prevIncrementTime), size.ws_col - 16, "");
         step();
+        endTime = std::chrono::high_resolution_clock::now();
         for(int i = 0; i < collection.camera.screenHeight(); i++) {
             std::cout << "  ";
             for(int j = 0; j < collection.camera.screenWidth(); j++) {
@@ -317,8 +319,8 @@ public:
             std::cout << "  \n";
         }
         printf("%*s", size.ws_col, "");
-        endTime = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> duration = endTime - startTime;
+        std::chrono::duration<double> duration = endTime - prevTime;
+        prevTime = endTime;
         prevIncrementTime = duration.count();
         currentTime += prevIncrementTime;
     }
