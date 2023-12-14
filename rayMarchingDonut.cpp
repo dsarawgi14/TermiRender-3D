@@ -33,9 +33,10 @@ int main() {
 
     Scene scene(&SphereNDonut, collection);
     scene.setStepFunction(stepFunc);
+    scene.setMaxFrameRate(100);
     scene.clear();
+    scene.startFrameTimer();
     while(1) {
-        printf("\x1b[H");
         scene.render();
     }
     return 0;

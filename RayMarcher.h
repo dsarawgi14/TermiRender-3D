@@ -184,7 +184,9 @@ private:
     int MAX_DISTANCE, MAX_STEPS; float SURF_DIST;
     unsigned short int _maxFrameRate;
     bool maintainMaxFrameRate, wrapInCubeBool;
+    volatile bool internalClockOn, nextFrame;
     double prevIncrementTime, currentTime;
+    std::thread internalClock;
     ObjectCollection& collection;
     RenderableObject* objectSDF;
     CubeObj* cube;
@@ -226,16 +228,24 @@ private:
         vec3 n = getNormal(p);
         return clamp(0.1 + 0.6*(fmax(0.0d, (l-p).normalise().dot(n))), 0, 1);
     }
-    void waitNextFrame() {
-        if(maintainMaxFrameRate) {
+
+    void internalTimer() {
+        while(internalClockOn) {
             std::chrono::duration<double> duration(1.0 / _maxFrameRate);
             std::this_thread::sleep_for(duration);
+            nextFrame = 1;
         }
+    }
+
+    void waitNextFrame() {
+        while(!nextFrame) {}
+        nextFrame = false;
     }
 
 public:
     Scene(RenderableObject* objsdf, ObjectCollection& coll): objectSDF(objsdf), collection(coll) {
         maintainMaxFrameRate = false;
+        internalClockOn = false;
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
         prevIncrementTime = 0.01;
         MAX_DISTANCE = 100;
@@ -277,10 +287,23 @@ public:
         this->privateStep(prevIncrementTime, currentTime, collection);
     }
 
+    void startFrameTimer() {
+        if(maintainMaxFrameRate && !internalClockOn) {
+            internalClockOn = true;
+            internalClock = std::thread(&Scene::internalTimer, this);
+        }
+    }
+    
+    void stopFrameTimer() {
+        internalClockOn = false;
+        internalClock.join();
+    }
+
     void render() {
         startTime = std::chrono::high_resolution_clock::now();
-        std::cout << "Frame rate: " << (int)(1/prevIncrementTime) << std::endl;
-        waitNextFrame();
+        printf("\x1b[H");
+        printf("Frame rate: %4d\n", (int)(1/prevIncrementTime));
+        if(maintainMaxFrameRate) waitNextFrame();
         collection.camera.setScreenHeight(size.ws_row - 3);
         collection.camera.setScreenWidth(size.ws_col - 4);
         step();
