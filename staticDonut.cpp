@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/select.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <cstring>
@@ -20,6 +21,8 @@ using namespace std;
 #define MAX_DISTANCE 100
 #define MAX_STEPS 100
 #define SURF_DIST 0.01f
+
+int HEIGHT = 30, WIDTH = 100;
 
 atomic<bool> ContinueBool(true);
 
@@ -67,9 +70,11 @@ struct CameraObjSpace{
     const float aspectRatio = 24.0f/ 11.0f;
 
     CameraObjSpace(): pos(vec3(0)), u(vec3(1, 0, 0)), v(vec3(0, 1, 0)) {
+        struct winsize size;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
         angle = M_PI / 2;
-        screenWidth = 100;
-        screenHeight = 30;
+        screenWidth = WIDTH;
+        screenHeight = HEIGHT;
     }
 
     void rotX(float angle) {u = rotateX(u, angle); v = rotateX(v, angle);}
@@ -187,16 +192,25 @@ float getIntensity(vec3& l, vec3 ro, vec3 rd) {
     return clamp(0.1 + 0.6*(fmax(0.0d, (l-p).normalise().dot(n))), 0, 1);
 }
 
+void initScreenSize() {
+    struct winsize size;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+    WIDTH = size.ws_col - 4; 
+    HEIGHT = size.ws_row - 3;
+}
 
 int main() {
+    // initScreenSize(); // Looks better without it, just make sure the terminal size is >= 30x100
     clear();
-
     int check = 0;
     vec4 clr(0);
     // printf("\x1b[2J\x1b[H");
     const char* gradient = " .:!/r(l1Z4H9W8$@";
     int gradientSize = strlen(gradient) - 2;
-    int width = 100, height = 30;
+    // int width = 100, height = 30;
+    struct winsize size;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+    int width = WIDTH, height = HEIGHT;
     float aspectRatio = 24.0/11.0;
     vec3 l(3), vec(0, 0, 1);
     sphere.radius = 0.7;
@@ -219,7 +233,7 @@ int main() {
             printf("%5.4f %5.4f %5.4f\n", donut.v.x, donut.v.y, donut.v.z);
             for(int i = 0; i < height; i++) {
                 for(int j = 0; j < width; j++) {
-                    vec3 p((j - width/2), -(i - height/2)*aspectRatio, 0);
+                    // vec3 p((j - width/2), -(i - height/2)*aspectRatio, 0);
                     // float intensity = getIntensity(l, vec * 5, p - vec * fmax(height*aspectRatio, width));
                     float intensity = getIntensity(l, camera.pos, camera.rd(j, i));
                     cout << gradient[(int)(gradientSize * intensity)];

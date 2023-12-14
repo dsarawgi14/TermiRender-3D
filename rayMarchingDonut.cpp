@@ -27,9 +27,9 @@ int main() {
 
     Scene scene(&SphereNDonut, collection);
     scene.setStepFunction(stepFunc);
-    scene.setMaxFrameRate(100);
+    // scene.setMaxFrameRate(100);
     scene.clear();
-    scene.startFrameTimer();
+    // scene.startFrameTimer();
     while(1) {
         scene.render();
     }
