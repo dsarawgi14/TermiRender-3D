@@ -183,7 +183,7 @@ private:
     struct winsize size;
     int MAX_DISTANCE, MAX_STEPS; float SURF_DIST;
     unsigned short int _maxFrameRate;
-    bool maintainMaxFrameRate, wrapInCubeBool;
+    bool maintainMaxFrameRate, wrapInCubeBool, NO_THREADING;
     volatile bool internalClockOn, nextFrame;
     double prevIncrementTime, currentTime;
     std::thread internalClock;
@@ -240,6 +240,51 @@ private:
     void waitNextFrame() {
         while(!nextFrame) {}
         nextFrame = false;
+    }
+
+    std::thread RenderThreads[10];
+    const int NUM_THREADS = 10;
+    char buffs[1000000];
+    
+    void threadRender() {
+        for(int i = 0; i < NUM_THREADS; i++) {
+            RenderThreads[i] = std::thread(&Scene::threadRenderer, this, i);
+        }
+        for(int i = 0; i < NUM_THREADS; i++) {
+            RenderThreads[i].join();
+        }
+        std::cout << buffs;
+    }
+
+    void threadRenderer(int i) {
+        int i1 = static_cast<int>((int)collection.camera.screenHeight() / 10 * i + i);
+        int i2 = static_cast<int>(std::min((int)collection.camera.screenHeight(), (int)collection.camera.screenHeight()/10*(i + 1) + i + 1));
+        int offset = static_cast<int>((int)(collection.camera.screenWidth()+5) * i1);
+        int cnt = 0;
+        for(int k = i1; k < i2; k++) {
+            sprintf(buffs + offset + cnt, "  ");
+            cnt += 2;
+            for(int j = 0; j < collection.camera.screenWidth(); j++) {
+                float intensity = getIntensity(collection.lightSource, collection.camera.pos(), collection.camera.rd(j, k));
+                sprintf(buffs + offset + cnt, "%c", gradient[(int)(gradientSize * intensity)]);
+                cnt++;
+            }
+            sprintf(buffs + offset + cnt, "  \n");
+            cnt += 3;
+        }
+        if(i != 10) buffs[offset + cnt] = ' ';
+        return;
+    }
+
+    void noThreadRender() {
+        for(int i = 0; i < collection.camera.screenHeight(); i++) {
+            std::cout << "  ";
+            for(int j = 0; j < collection.camera.screenWidth(); j++) {
+                float intensity = getIntensity(collection.lightSource, collection.camera.pos(), collection.camera.rd(j, i));
+                std::cout << gradient[(int)(gradientSize * intensity)];
+            }
+            std::cout << "  \n";
+        }
     }
 
 public:
@@ -301,6 +346,14 @@ public:
         internalClock.join();
     }
 
+    void noThreading() {
+        NO_THREADING = 1;
+    }
+
+    void enableThreading() {
+        NO_THREADING = 0;
+    }
+
     void render() {
         printf("\x1b[H");
         if(maintainMaxFrameRate) waitNextFrame();
@@ -309,15 +362,9 @@ public:
         collection.camera.setScreenWidth(size.ws_col - 4);
         printf("Frame rate: %4d%*s\n", (int)(1/prevIncrementTime), size.ws_col - 16, "");
         step();
+        if(NO_THREADING) noThreadRender();
+        else threadRender();
         endTime = std::chrono::high_resolution_clock::now();
-        for(int i = 0; i < collection.camera.screenHeight(); i++) {
-            std::cout << "  ";
-            for(int j = 0; j < collection.camera.screenWidth(); j++) {
-                float intensity = getIntensity(collection.lightSource, collection.camera.pos(), collection.camera.rd(j, i));
-                std::cout << gradient[(int)(gradientSize * intensity)];
-            }
-            std::cout << "  \n";
-        }
         printf("%*s", size.ws_col, "");
         std::chrono::duration<double> duration = endTime - prevTime;
         prevTime = endTime;
