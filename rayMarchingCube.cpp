@@ -28,6 +28,7 @@ int main() {
     scene.setStepFunction(stepFunc);
     // scene.setMaxFrameRate(100);
     scene.clear();
+    // scene.noThreading();
     scene.startFrameTimer();
     while(1) {
         scene.render();

@@ -272,7 +272,7 @@ private:
             sprintf(buffs + offset + cnt, "  \n");
             cnt += 3;
         }
-        if(i != 10) buffs[offset + cnt] = ' ';
+        if(i2 != (int)collection.camera.screenHeight()) buffs[offset + cnt] = ' ';
         return;
     }
 
@@ -355,17 +355,18 @@ public:
     }
 
     void render() {
-        printf("\x1b[H");
+        printf("\x1b[H\e[?25l");
         if(maintainMaxFrameRate) waitNextFrame();
+        step();
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &size); //58x240 screen size looks really good, with a steady 70 fps, without maxFrameRate has20 fps even on 110x480
-        collection.camera.setScreenHeight(size.ws_row - 3);
+        collection.camera.setScreenHeight(size.ws_row - 2);
         collection.camera.setScreenWidth(size.ws_col - 4);
         printf("Frame rate: %4d%*s\n", (int)(1/prevIncrementTime), size.ws_col - 16, "");
-        step();
         if(NO_THREADING) noThreadRender();
         else threadRender();
         endTime = std::chrono::high_resolution_clock::now();
         printf("%*s", size.ws_col, "");
+        std::cout << "\e[?25h";
         std::chrono::duration<double> duration = endTime - prevTime;
         prevTime = endTime;
         prevIncrementTime = duration.count();
