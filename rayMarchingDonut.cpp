@@ -22,6 +22,7 @@ int main() {
     collection.sphere["Sphere 1"].setRadius(0.7);
     collection.donut["Donut 1"];
     collection.donut["Donut 2"];
+    collection.cube["Wrap Cube"] = CubeObj(9);
 
     SDFMixer SphereNDonut(&collection.donut["Donut 1"], &collection.sphere["Sphere 1"]);
     SphereNDonut.setSmoothUnion();
@@ -30,6 +31,7 @@ int main() {
 
     Scene scene(&SphereNDonut, collection);
     scene.setStepFunction(stepFunc);
+    scene.wrapInCube(&collection.cube["Wrap Cube"]);
     // scene.setMaxFrameRate(100);
     scene.clear();
     // scene.noThreading();

@@ -242,8 +242,8 @@ private:
         nextFrame = false;
     }
 
-    std::thread RenderThreads[10];
-    const int NUM_THREADS = 10;
+    std::thread RenderThreads[20];
+    const int NUM_THREADS = 20;
     char buffs[1000000];
     
     void threadRender() {
@@ -257,8 +257,8 @@ private:
     }
 
     void threadRenderer(int i) {
-        int i1 = static_cast<int>((int)collection.camera.screenHeight() / 10 * i + i);
-        int i2 = static_cast<int>(std::min((int)collection.camera.screenHeight(), (int)collection.camera.screenHeight()/10*(i + 1) + i + 1));
+        int i1 = static_cast<int>((int)collection.camera.screenHeight() / NUM_THREADS * i + i);
+        int i2 = static_cast<int>(std::min((int)collection.camera.screenHeight(), (int)collection.camera.screenHeight()/NUM_THREADS*(i + 1) + i + 1));
         int offset = static_cast<int>((int)(collection.camera.screenWidth()+5) * i1);
         int cnt = 0;
         for(int k = i1; k < i2; k++) {
