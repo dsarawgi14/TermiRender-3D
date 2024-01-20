@@ -226,7 +226,7 @@ private:
         if(dO >= MAX_DISTANCE) return 0;
         vec3 p = ro + dO * rd;
         vec3 n = getNormal(p);
-        return clamp(0.1 + 0.6*(fmax(0.0d, (l-p).normalise().dot(n))), 0, 1);
+        return clamp(0.1 + 0.6*(fmax(0.0, (l-p).normalise().dot(n))), 0, 1);
     }
 
     void internalTimer() {
