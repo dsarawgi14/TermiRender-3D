@@ -174,6 +174,27 @@ public:
     ObjectCollection(): lightSource(0) {}
 };
 
+
+class BringBackCursor{
+    private:
+    static void sigterm_handler(int signum) {
+        if (signum == SIGINT || signum == SIGTSTP) {
+            printf("\e[?25h");
+            exit(0);  // You may want to perform additional cleanup or handling before exiting
+        }
+    }
+    static BringBackCursor* instance;
+    public:
+    BringBackCursor() {
+        if(BringBackCursor::instance == nullptr) {
+            BringBackCursor::instance = this;
+            signal(SIGINT, sigterm_handler);
+            signal(SIGTSTP, sigterm_handler);
+        }
+    }
+};
+BringBackCursor* BringBackCursor::instance = nullptr;
+
 class Scene {
 private:
     typedef void (*stepFuncPtr)(double, double, ObjectCollection&);
@@ -190,6 +211,7 @@ private:
     ObjectCollection& collection;
     RenderableObject* objectSDF;
     CubeObj* cube;
+    BringBackCursor cursor;
     stepFuncPtr privateStep = [](double, double, ObjectCollection&){}; 
     std::chrono::high_resolution_clock::time_point prevTime, endTime; 
 
@@ -297,6 +319,7 @@ public:
         MAX_STEPS = 100;
         SURF_DIST = 0.01f;
         prevTime = std::chrono::high_resolution_clock::now();
+        cursor = BringBackCursor();
     }
     void setMaxFrameRate(unsigned short int rate) {
         _maxFrameRate = rate; 
