@@ -19,7 +19,7 @@ all: $(BINARY)
 
 $(BINARY): $(CLIENT_OBJECTS) $(OBJECTS)
 	$(info Making Binary in build folder - bin)
-	@$(CC) -o $@ $^ -lp\thread
+	@$(CC) -o $@ $^ -lpthread
 	$(info Binary created)
 
 CLIENT: $(CLIENT_OBJECTS) $(OBJECTS)
