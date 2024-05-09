@@ -2,3 +2,5 @@ ignore
 
 src/**/*.o
 src/**/*.d
+client/*.o
+client/*.d
