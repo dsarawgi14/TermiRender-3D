@@ -19,7 +19,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "d:/Projects/Post Sem 5/Donut in terminal/MyDonut/**"
+                "/mnt/d/Projects/Post Sem 5/Donut in terminal/MyDonut/**",
+                "/mnt/d/Projects/Post Sem 5/Donut in terminal/MyDonut/include/**"
             ],
             "defines": [
                 "_DEBUG",

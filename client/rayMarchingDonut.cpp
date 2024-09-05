@@ -1,6 +1,5 @@
-#include "Vec.h"
-#include "VecFunctions.h"
-#include "RayMarcher.h"
+#include "vecBundle.h"
+#include "rayMarcher.h"
 
 using namespace std;
 

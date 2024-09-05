@@ -1,3 +1,6 @@
 ignore
-test
-text.cpp
+
+src/**/*.o
+src/**/*.d
+client/*.o
+client/*.d
