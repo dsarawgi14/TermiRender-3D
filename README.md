@@ -55,7 +55,7 @@ The project is organized into the following structure:
 2. **Place Your Client Code**:
    
    - Add your custom scene and object creation logic in the `client/` folder.
-   - The provided `rayMarchingDonut.cpp` serves as an example to get started.
+   - The provided `rayMarchingDonut.cpp` and `rayMarchingCube.cpp` serve as examples to get started.
 
 3. **Build the Project**:
    
@@ -71,7 +71,7 @@ The project is organized into the following structure:
      make
      ```
 
-   - The executable will be created in the `build/bin/` directory.
+   - The executable will be created as `bin` within the `build/` directory.
 
 4. **Clean the Build**:
    
@@ -83,10 +83,10 @@ The project is organized into the following structure:
 
 ## Usage
 
-Once the project is built, you can run the executable from the `build/bin` directory:
+Once the project is built, you can run the executable from the `build/` directory:
 
 ```bash
-./bin/<executable-name>
+./bin
 ```
 
 ### Customizing the Scene
