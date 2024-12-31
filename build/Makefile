@@ -3,7 +3,7 @@ INCDIRS=./../include
 CLIENTDIR=../client
 CODEDIRS=../src/rayMarching ../src/vec
 DEPFLAGS=-MP -MD
-CFLAGS=$(foreach dir, $(INCDIRS), -I$(dir)) $(DEPFLAGS) -lpthread
+CFLAGS=$(foreach dir, $(INCDIRS), -I$(dir)) $(DEPFLAGS) -lpthread -std=c++17
 
 CLIENT_CFILES=$(wildcard $(CLIENTDIR)/*.cpp)
 CLIENT_OBJECTS=$(CLIENT_CFILES:.cpp=.o)
